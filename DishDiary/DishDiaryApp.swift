@@ -4,7 +4,7 @@
 //
 //  Created by Daria Yatsyniuk on 11.08.2025.
 //
-
+import SwiftData
 import SwiftUI
 
 @main
@@ -13,5 +13,6 @@ struct DishDiaryApp: App {
         WindowGroup {
             ContentView()
         }
+        .modelContainer(for: Recipe.self)
     }
 }
