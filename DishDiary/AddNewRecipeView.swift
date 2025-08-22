@@ -17,8 +17,9 @@ struct AddNewRecipeView: View {
     @State private var ingredients: [String] = []
     @State private var newIngredient = ""
     @State private var steps: [String] = []
+    @State private var newStep = ""
     @State private var link = ""
-    @State private var cookingTime = ""
+    @State private var cookingTime = 5
 
     @State private var selectedImage: UIImage?
     @State private var imageName: String?
@@ -30,15 +31,26 @@ struct AddNewRecipeView: View {
                 Section(header: Text("Recipe details")) {
                     TextField("Name", text: $name)
                     TextField("Portions", text: $portions)
+                    TextField("Link", text: $link)
                 }
 
                 Section(header: Text("Cooking time")) {
-                    TextField("Cooking time in minutes", text: $cookingTime)
+                    Picker("Cooking time", selection: $cookingTime) {
+                        ForEach(5...220, id: \.self) {
+                            Text("\($0) min")
+                        }
+                    }
                 }
 
                 Section(header: Text("Ingredients")) {
                     HStack {
                         TextField("Add ingredient", text: $newIngredient)
+                            .onSubmit {
+                                if !newIngredient.isEmpty {
+                                    ingredients.append(newIngredient)
+                                    newIngredient = ""
+                                }
+                            }
                         Button(action: {
                             if !newIngredient.isEmpty {
                                 ingredients.append(newIngredient)
@@ -54,6 +66,33 @@ struct AddNewRecipeView: View {
                     }
                     .onDelete { indices in
                         ingredients.remove(atOffsets: indices)
+                    }
+                }
+
+                Section(header: Text("Steps")) {
+                    HStack {
+                        TextField("Add steps", text: $newStep)
+                            .onSubmit {
+                                if !newStep.isEmpty {
+                                    steps.append(newStep)
+                                    newStep = ""
+                                }
+                            }
+                        Button(action: {
+                            if !newStep.isEmpty {
+                                steps.append(newStep)
+                                newStep = ""
+                            }
+                        }) {
+                            Image(systemName: "plus.circle.fill")
+                        }
+                        .disabled(newStep.isEmpty)
+                    }
+                    ForEach(steps, id: \.self) { step in
+                        Text(step)
+                    }
+                    .onDelete { indices in
+                        steps.remove(atOffsets: indices)
                     }
                 }
 
