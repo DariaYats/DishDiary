@@ -15,10 +15,10 @@ class Recipe {
     var ingredients: [String] = []
     var steps: [String] 
     var link: String
-    var cookingTime: String
+    var cookingTime: Int
     var imageName: String
 
-    init(name: String, portions: String, ingredients: [String] = [], steps: [String], link: String, cookingTime: String, imageName: String) {
+    init(name: String, portions: String, ingredients: [String] = [], steps: [String], link: String, cookingTime: Int, imageName: String) {
         self.name = name
         self.portions = portions
         self.ingredients = ingredients
