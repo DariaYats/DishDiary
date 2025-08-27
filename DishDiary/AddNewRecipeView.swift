@@ -24,86 +24,79 @@ struct AddNewRecipeView: View {
     @State private var selectedImage: UIImage?
     @State private var imageName: String?
     @State private var isPhotoPickerPresented = false
-  
+
     var body: some View {
         NavigationStack {
             Form {
-                Section(header: Text("Recipe details")) {
+                Section("Recipe Info") {
                     TextField("Name", text: $name)
-                    TextField("Portions", text: $portions)
-                    TextField("Link", text: $link)
-                }
-
-                Section(header: Text("Cooking time")) {
-                    Picker("Cooking time", selection: $cookingTime) {
-                        ForEach(5...220, id: \.self) {
-                            Text("\($0) min")
+                        .textInputAutocapitalization(.words)
+                    TextField("Servings (e.g. 2–4)", text: $servings)
+                        .keyboardType(.numbersAndPunctuation)
+                    Picker("Cooking Time", selection: $cookingTime) {
+                        ForEach(5...240, id: \.self) { time in
+                            Text("\(time) min")
                         }
                     }
                 }
 
-                Section(header: Text("Ingredients")) {
+                Section("Ingredients") {
                     HStack {
                         TextField("Add ingredient", text: $newIngredient)
-                            .onSubmit {
-                                if !newIngredient.isEmpty {
-                                    ingredients.append(newIngredient)
-                                    newIngredient = ""
-                                }
-                            }
-                        Button(action: {
-                            if !newIngredient.isEmpty {
-                                ingredients.append(newIngredient)
-                                newIngredient = ""
-                            }
-                        }) {
+                            .onSubmit(addIngredient)
+                        Button {
+                            addIngredient()
+                        } label: {
                             Image(systemName: "plus.circle.fill")
+                                .foregroundColor(.accentColor)
                         }
                         .disabled(newIngredient.isEmpty)
                     }
-                    ForEach(ingredients, id: \.self) { ingredient in
-                        Text(ingredient)
-                    }
-                    .onDelete { indices in
-                        ingredients.remove(atOffsets: indices)
+
+                    if ingredients.isEmpty {
+                        Text("No ingredients added yet")
+                            .foregroundColor(.secondary)
+                    } else {
+                        ForEach(ingredients, id: \.self) { ingredient in
+                            Text(ingredient)
+                        }
+                        .onDelete { indices in
+                            ingredients.remove(atOffsets: indices)
+                        }
                     }
                 }
 
-                Section(header: Text("Steps")) {
+                Section("Steps") {
                     HStack {
-                        TextField("Add steps", text: $newStep)
-                            .onSubmit {
-                                if !newStep.isEmpty {
-                                    steps.append(newStep)
-                                    newStep = ""
-                                }
-                            }
-                        Button(action: {
-                            if !newStep.isEmpty {
-                                steps.append(newStep)
-                                newStep = ""
-                            }
-                        }) {
+                        TextField("Add step", text: $newStep)
+                            .onSubmit(addStep)
+                        Button {
+                            addStep()
+                        } label: {
                             Image(systemName: "plus.circle.fill")
+                                .foregroundColor(.accentColor)
                         }
                         .disabled(newStep.isEmpty)
                     }
-                    ForEach(steps, id: \.self) { step in
-                        Text(step)
-                    }
-                    .onDelete { indices in
-                        steps.remove(atOffsets: indices)
+
+                    if steps.isEmpty {
+                        Text("No steps added yet")
+                            .foregroundColor(.secondary)
+                    } else {
+                        ForEach(steps, id: \.self) { step in
+                            Text(step)
+                        }
+                        .onDelete { indices in
+                            steps.remove(atOffsets: indices)
+                        }
                     }
                 }
 
-                Section(header: Text("Photo")) {
-                    Button(action: {
+                Section("Photo") {
+                    Button {
                         isPhotoPickerPresented = true
-                    }) {
-                        HStack {
-                            Text("Add Photo")
-                            Image(systemName: "photo")
-                        }
+                    } label: {
+                        Label("Choose Photo", systemImage: "photo.on.rectangle")
                     }
 
                     if let selectedImage {
@@ -111,9 +104,20 @@ struct AddNewRecipeView: View {
                             .resizable()
                             .scaledToFit()
                             .frame(height: 200)
+                            .clipShape(RoundedRectangle(cornerRadius: 12))
+                            .shadow(radius: 2)
                     }
                 }
+
+                Section("Link (optional)") {
+                    TextField("https://example.com", text: $link)
+                        .keyboardType(.URL)
+                        .autocorrectionDisabled()
+                        .textInputAutocapitalization(.never)
+                }
             }
+            .navigationTitle("New Recipe")
+            .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Save") {
@@ -134,27 +138,37 @@ struct AddNewRecipeView: View {
         }
     }
 
+    private func addIngredient() {
+        guard !newIngredient.isEmpty else { return }
+        ingredients.append(newIngredient)
+        newIngredient = ""
+    }
 
-    func saveRecipe() {
+    private func addStep() {
+        guard !newStep.isEmpty else { return }
+        steps.append(newStep)
+        newStep = ""
+    }
+
+    private func saveRecipe() {
         guard !name.isEmpty else { return }
         let newRecipe = Recipe(
             name: name,
-            portions: portions,
+            servings: servings,
             ingredients: ingredients,
             steps: steps,
             link: link,
             cookingTime: cookingTime,
             imageName: imageName ?? ""
-            )
-
+        )
 
         modelContext.insert(newRecipe)
         try? modelContext.save()
         dismiss()
     }
 
-    func saveImage(image: UIImage) -> String? {
-        guard let imageData = image.jpegData(compressionQuality: 1) else { return nil }
+    private func saveImage(image: UIImage) -> String? {
+        guard let imageData = image.jpegData(compressionQuality: 0.9) else { return nil }
         let fileName = UUID().uuidString + ".jpg"
         let documentsURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
         let fileURL = documentsURL.appendingPathComponent(fileName)
@@ -172,3 +186,4 @@ struct AddNewRecipeView: View {
     AddNewRecipeView()
         .modelContainer(for: Recipe.self)
 }
+
