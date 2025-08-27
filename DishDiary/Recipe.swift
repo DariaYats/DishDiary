@@ -11,16 +11,16 @@ import Foundation
 class Recipe {
     var id = UUID()
     var name: String
-    var portions: String
+    var servings: String
     var ingredients: [String] = []
     var steps: [String] 
     var link: String
     var cookingTime: Int
     var imageName: String
 
-    init(name: String, portions: String, ingredients: [String] = [], steps: [String], link: String, cookingTime: Int, imageName: String) {
+    init(name: String, servings: String, ingredients: [String] = [], steps: [String], link: String, cookingTime: Int, imageName: String) {
         self.name = name
-        self.portions = portions
+        self.servings = servings
         self.ingredients = ingredients
         self.steps = steps
         self.link = link

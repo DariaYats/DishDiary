@@ -13,7 +13,7 @@ struct AddNewRecipeView: View {
     @Environment(\.dismiss) private var dismiss
 
     @State private var name = ""
-    @State private var portions = ""
+    @State private var servings = ""
     @State private var ingredients: [String] = []
     @State private var newIngredient = ""
     @State private var steps: [String] = []
